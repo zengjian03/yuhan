@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>曾羽涵 - 成绩记录</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js">
+    </script>
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --primary-light: #a29bfe;
+            --accent: #fd79a8;
+            --accent-light: #fab1c8;
+            --gold: #f9ca24;
+            --gold-light: #fce9a1;
+            --bg: #f8f7fc;
+            --card-bg: #ffffff;
+            --text: #2d3436;
+            --text-light: #636e72;
+            --shadow-sm: 0 2px 12px rgba(108, 92, 231, 0.08);
+            --shadow-md: 0 8px 32px rgba(108, 92, 231, 0.12);
+            --shadow-lg: 0 20px 50px rgba(108, 92, 231, 0.18);
+            --radius-sm: 12px;
+            --radius: 18px;
+            --radius-lg: 24px;
+            --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+            background: linear-gradient(160deg, #f0e8ff 0%, #fce4ec 25%, #fff9f0 50%, #e8f4fd 75%, #f3e8ff 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 花瓣飘落 */
+        .petals-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .petal {
+            position: absolute;
+            top: -60px;
+            animation: petalFall linear infinite;
+            opacity: 0.7;
+            filter: blur(0.5px);
+            will-change: transform;
+        }
+        @keyframes petalFall {
+            0% {
+                transform: translateY(-60px) rotate(0deg) translateX(0px);
+                opacity: 0.85;
+            }
+            15% {
+                opacity: 0.9;
+            }
+            50% {
+                transform: translateY(50vh) rotate(200deg) translateX(60px);
+                opacity: 0.7;
+            }
+            85% {
+                opacity: 0.45;
+            }
+            100% {
+                transform: translateY(105vh) rotate(380deg) translateX(-40px);
+                opacity: 0;
+            }
+        }
+
+        /* 音乐按钮 */
+        .music-btn {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 2px solid #e8e4f0;
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            font-size: 22px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .music-btn:hover {
+            transform: scale(1.08);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+        .music-btn:active {
+            transform: scale(0.94);
+            transition: 0.1s;
+        }
+        .music-btn.playing {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            animation: musicPulse 2s ease-in-out infinite;
+        }
+        @keyframes musicPulse {
+            0%,
+            100% {
+                box-shadow: 0 0 0 0 rgba(108, 92, 231, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 0 22px rgba(108, 92, 231, 0);
+            }
+        }
+        .music-btn .note-icon {
+            transition: var(--transition);
+        }
+        .music-btn.playing .note-icon {
+            animation: noteBounce 0.6s ease-in-out infinite;
+        }
+        @keyframes noteBounce {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-6px) scale(1.1);
+            }
+            60% {
+                transform: translateY(2px) scale(0.95);
+            }
+        }
+
+        /* 主容器 */
+        .main-container {
+            position: relative;
+            z-index: 1;
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 20px 20px 40px;
+        }
+
+        /* 顶部区域 */
+        .hero-section {
+            text-align: center;
+            padding: 36px 20px 20px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .avatar-wrapper {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .avatar-wrapper:hover {
+            transform: translateY(-4px);
+        }
+        .avatar-ring {
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: var(--accent);
+            border-right-color: var(--primary-light);
+            animation: ringSpin 4s linear infinite;
+        }
+        @keyframes ringSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #fff;
+            box-shadow: var(--shadow-md);
+            display: block;
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(135deg, #fce4ec, #e8e0f8);
+            transition: var(--transition);
+        }
+        .avatar-placeholder {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #fce4ec, #e8e0f8);
+            font-size: 52px;
+            position: relative;
+            z-index: 1;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        .hero-name {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-top: 16px;
+            background: linear-gradient(135deg, #6c5ce7, #e84393);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+        }
+        .hero-motto {
+            font-size: 1em;
+            color: var(--text-light);
+            margin-top: 4px;
+            font-style: italic;
+            letter-spacing: 1px;
+        }
+
+        /* 成绩概览卡片 */
+        .score-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin: 28px 0;
+            animation: fadeInUp 0.9s ease-out;
+        }
+        .score-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 22px 14px;
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #f0ecfa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .score-card:hover {
+            transform: translateY(-6px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-light);
+        }
+        .score-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(108, 92, 231, 0.04) 0%, transparent 70%);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .score-card:hover::after {
+            opacity: 1;
+        }
+        .score-subject {
+            font-size: 0.9em;
+            color: var(--text-light);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .score-value {
+            font-size: 3em;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 6px 0;
+            letter-spacing: -1px;
+            transition: var(--transition);
+        }
+        .score-card:hover .score-value {
+            transform: scale(1.06);
+            color: #5b4bd5;
+        }
+        .score-change {
+            font-size: 0.85em;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px;
+            display: inline-block;
+        }
+        .score-change.up {
+            background: #e8f8e8;
+            color: #27ae60;
+        }
+        .score-change.down {
+            background: #fde8e8;
+            color: #e74c3c;
+        }
+        .rank-badge {
+            font-size: 0.85em;
+            background: #fff9e0;
+            color: #b8860b;
+            padding: 2px 8px;
+            border-radius: 12px;
+            margin-top: 4px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* 图表区域 */
+        .chart-section {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 24px 20px 16px;
+            box-shadow: var(--shadow-sm);
+            margin: 24px 0;
+            border: 1px solid #f0ecfa;
+            animation: fadeInUp 1s ease-out;
+            transition: var(--transition);
+        }
+        .chart-section:hover {
+            box-shadow: var(--shadow-md);
+        }
+        .chart-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text);
+            letter-spacing: 1px;
+            text-align: center;
+        }
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+            max-height: 380px;
+        }
+        .chart-wrapper canvas {
+            width: 100% !important;
+            max-height: 360px;
+        }
+
+        /* 时间线 */
+        .timeline-section {
+            margin: 24px 0;
+            animation: fadeInUp 1.1s ease-out;
+        }
+        .timeline-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+            text-align: center;
+            color: var(--text);
+        }
+        .timeline {
+            position: relative;
+            padding-left: 32px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 14px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, var(--primary-light), var(--accent-light), var(--primary-light));
+            border-radius: 2px;
+        }
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid #f0ecfa;
+            transition: var(--transition);
+            cursor: default;
+        }
+        .timeline-item:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-light);
+        }
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 22px;
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            border: 3px solid var(--primary);
+            box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.12);
+            transition: var(--transition);
+        }
+        .timeline-item:hover::before {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 8px rgba(253, 121, 168, 0.18);
+            transform: scale(1.3);
+        }
+        .timeline-date {
+            font-size: 0.85em;
+            color: var(--primary);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .timeline-scores {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+            font-size: 0.95em;
+        }
+        .timeline-scores span {
+            background: #f8f7fc;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+        .timeline-scores span:hover {
+            background: #ece8f8;
+        }
+        .timeline-total {
+            margin-top: 4px;
+            font-size: 0.85em;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+        .timeline-rank {
+            font-size: 0.8em;
+            color: #b8860b;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+
+        /* 照片墙 */
+        .gallery-section {
+            margin: 24px 0;
+            animation: fadeInUp 1.2s ease-out;
+        }
+        .gallery-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+            text-align: center;
+            color: var(--text);
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 14px;
+        }
+        .gallery-item {
+            aspect-ratio: 4/3;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            background: linear-gradient(135deg, #fce4ec, #e8e0f8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            border: 3px solid transparent;
+        }
+        .gallery-item:hover {
+            transform: scale(1.04);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent-light);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: var(--transition);
+        }
+        .gallery-item:hover img {
+            transform: scale(1.08);
+        }
+        .gallery-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #fdf2f8, #f3eefc);
+            color: #c4b5e0;
+            font-size: 2.8em;
+            transition: var(--transition);
+        }
+        .gallery-item:hover .gallery-placeholder {
+            color: var(--primary-light);
+            background: linear-gradient(135deg, #fce4ec, #e8e0f8);
+        }
+
+        /* 荣誉区 */
+        .honors-section {
+            margin: 24px 0;
+            animation: fadeInUp 1.3s ease-out;
+        }
+        .honors-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            margin-bottom: 14px;
+            letter-spacing: 1px;
+            text-align: center;
+            color: var(--text);
+        }
+        .honors {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+        .honor-badge {
+            background: var(--card-bg);
+            border-radius: 30px;
+            padding: 10px 20px;
+            box-shadow: var(--shadow-sm);
+            font-weight: 600;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            border: 1px solid #f0ecfa;
+            cursor: default;
+            font-size: 0.95em;
+        }
+        .honor-badge:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+            border-color: var(--gold-light);
+            background: #fffef9;
+        }
+        .honor-star {
+            font-size: 1.3em;
+            animation: starGlow 2s ease-in-out infinite;
+        }
+        @keyframes starGlow {
+            0%,
+            100% {
+                filter: drop-shadow(0 0 3px #f9ca24);
+            }
+            50% {
+                filter: drop-shadow(0 0 10px #f9ca24);
+            }
+        }
+
+        /* 底部 */
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-light);
+            font-size: 0.85em;
+            letter-spacing: 1px;
+            animation: fadeInUp 1.4s ease-out;
+        }
+        .footer .heart {
+            color: #e84393;
+            animation: heartBeat 1.5s ease-in-out infinite;
+            display: inline-block;
+        }
+        @keyframes heartBeat {
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            15% {
+                transform: scale(1.25);
+            }
+            30% {
+                transform: scale(1);
+            }
+        }
+
+        /* 滚动动画 */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+        }
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* 响应式 */
+        @media (max-width: 650px) {
+            .hero-name {
+                font-size: 1.6em;
+            }
+            .score-value {
+                font-size: 2.2em;
+            }
+            .score-cards {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+            .score-card {
+                padding: 16px 10px;
+            }
+            .gallery {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            .timeline {
+                padding-left: 24px;
+            }
+            .timeline-item::before {
+                left: -22px;
+                width: 10px;
+                height: 10px;
+            }
+            .music-btn {
+                bottom: 16px;
+                right: 16px;
+                width: 46px;
+                height: 46px;
+                font-size: 18px;
+            }
+            .main-container {
+                padding: 10px 10px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 花瓣飘落容器 -->
+    <div class="petals-container" id="petalsContainer"></div>
+
+    <!-- 背景音乐按钮 -->
+    <button class="music-btn" id="musicBtn" title="点击播放背景音乐" aria-label="音乐开关">
+        <span class="note-icon">🎵</span>
+    </button>
+
+    <!-- 隐藏的音频元素 -->
+    <audio id="bgMusic" loop preload="auto" crossorigin="anonymous">
+        <source src="https://cdn.pixabay.com/audio/2022/10/25/audio_946bc3f5d5.mp3" type="audio/mpeg">
+        <source src="https://files.freemusicarchive.org/storage-freemusicarchive-org/music/ccCommunity/Chad_Crouch/Arps/Chad_Crouch_-_Shipping_Lanes.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 主容器 -->
+    <div class="main-container">
+
+        <!-- 顶部英雄区 -->
+        <section class="hero-section">
+            <div class="avatar-wrapper" title="点击更换照片" id="avatarWrapper">
+                <div class="avatar-ring"></div>
+                <div class="avatar-placeholder" id="avatarPlaceholder">👧</div>
+                <img class="avatar" id="avatarImg" src="img\touxiang.jpg" alt="曾羽涵" style="display:none;"
+                onerror="this.style.display='none';document.getElementById('avatarPlaceholder').style.display='flex';">
+            </div>
+            <h1 class="hero-name">曾羽涵</h1>
+            <p class="hero-motto">✨ 学如逆水行舟，不进则退 ✨</p>
+            <input type="file" id="avatarInput" accept="image/*" style="display:none;">
+        </section>
+
+        <!-- 成绩概览卡片 - 动态生成 -->
+        <section class="score-cards reveal" id="scoreCards"></section>
+
+        <!-- 成绩趋势图 -->
+        <section class="chart-section reveal">
+            <div class="chart-title">📈 成绩变化趋势</div>
+            <div class="chart-wrapper">
+                <canvas id="scoreChart"></canvas>
+            </div>
+        </section>
+
+        <!-- 成绩时间线 -->
+        <section class="timeline-section reveal">
+            <div class="timeline-title">📋 考试记录</div>
+            <div class="timeline" id="timeline"></div>
+        </section>
+
+        <!-- 照片墙 -->
+        <section class="gallery-section reveal">
+            <div class="gallery-title">📸 精彩瞬间</div>
+            <div class="gallery" id="gallery">
+                <div class="gallery-item" data-index="0" title="点击添加照片">
+                    <div class="gallery-placeholder">📷</div>
+                    <img src="" alt="照片1" style="display:none;"
+                    onerror="this.style.display='none';this.parentElement.querySelector('.gallery-placeholder').style.display='flex';">
+                </div>
+                <div class="gallery-item" data-index="1" title="点击添加照片">
+                    <div class="gallery-placeholder">🌟</div>
+                    <img src="" alt="照片2" style="display:none;"
+                    onerror="this.style.display='none';this.parentElement.querySelector('.gallery-placeholder').style.display='flex';">
+                </div>
+                <div class="gallery-item" data-index="2" title="点击添加照片">
+                    <div class="gallery-placeholder">🏆</div>
+                    <img src="" alt="照片3" style="display:none;"
+                    onerror="this.style.display='none';this.parentElement.querySelector('.gallery-placeholder').style.display='flex';">
+                </div>
+                <div class="gallery-item" data-index="3" title="点击添加照片">
+                    <div class="gallery-placeholder">🎓</div>
+                    <img src="" alt="照片4" style="display:none;"
+                    onerror="this.style.display='none';this.parentElement.querySelector('.gallery-placeholder').style.display='flex';">
+                </div>
+            </div>
+            <input type="file" id="galleryInput" accept="image/*" style="display:none;">
+        </section>
+
+        <!-- 荣誉区 -->
+        <section class="honors-section reveal">
+            <div class="honors-title">🏅 荣誉与成就</div>
+            <div class="honors">
+                <div class="honor-badge"><span class="honor-star">⭐</span> 三好学生</div>
+                <div class="honor-badge"><span class="honor-star">🌟</span> 最佳进步奖</div>
+                <div class="honor-badge"><span class="honor-star">💎</span> 数学竞赛二等奖</div>
+                <div class="honor-badge"><span class="honor-star">🎯</span> 英语演讲优秀奖</div>
+                <div class="honor-badge"><span class="honor-star">🏆</span> 班级学习标兵</div>
+            </div>
+        </section>
+
+        <!-- 底部 -->
+        <footer class="footer reveal">
+            <p>记录成长的每一步 <span class="heart">💜</span> 曾羽涵的学习档案</p>
+            <p style="font-size:0.75em;margin-top:4px;">每一天的努力，都在为未来铺路</p>
+        </footer>
+    </div>
+
+    <script>
+        (function() {
+            // ========== 成绩数据（含年级排名）==========
+            const examData = [
+                { name: '初一上期中', date: '2025.11', chinese: 101, math: 101, english: 90 , rank: 10},
+                { name: '初一上期末', date: '2026.01', chinese: 101, math: 98, english: 95 , rank: 6},
+                { name: '初一下期中', date: '2026.04', chinese: 103, math: 104, english: 93, rank: 4 },
+            ];
+
+            const latest = examData[examData.length - 1];
+            const previous = examData[examData.length - 2];
+            const totalStudents = 500; // 年级总人数，用于显示排名
+
+            // ========== 花瓣动画 ==========
+            const petalsContainer = document.getElementById('petalsContainer');
+            const petalShapes = ['🌸', '💮', '🌷', '✿', '❀', '🌺', '🍂'];
+
+            function createPetal() {
+                const petal = document.createElement('span');
+                petal.classList.add('petal');
+                petal.textContent = petalShapes[Math.floor(Math.random() * petalShapes.length)];
+                petal.style.left = Math.random() * 100 + '%';
+                petal.style.fontSize = (Math.random() * 16 + 10) + 'px';
+                petal.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                petal.style.animationDelay = Math.random() * 8 + 's';
+                petal.style.opacity = Math.random() * 0.5 + 0.35;
+                petalsContainer.appendChild(petal);
+
+                const duration = parseFloat(petal.style.animationDuration) + parseFloat(petal.style
+                .animationDelay);
+                setTimeout(() => {
+                    if (petal.parentNode) petal.remove();
+                }, duration * 1000 + 500);
+            }
+
+            for (let i = 0; i < 18; i++) {
+                setTimeout(() => createPetal(), i * 400);
+            }
+            setInterval(() => {
+                if (petalsContainer.children.length < 25) {
+                    createPetal();
+                }
+            }, 2500);
+
+            // ========== 背景音乐 ==========
+            const bgMusic = document.getElementById('bgMusic');
+            const musicBtn = document.getElementById('musicBtn');
+            const noteIcon = musicBtn.querySelector('.note-icon');
+            let isPlaying = false;
+            let musicLoaded = false;
+
+            bgMusic.volume = 0.35;
+            bgMusic.addEventListener('loadeddata', () => { musicLoaded = true; });
+            bgMusic.addEventListener('error', () => {
+                if (!musicLoaded && !bgMusic.dataset.fallbackTried) {
+                    bgMusic.dataset.fallbackTried = '1';
+                    tryFallbackMusic();
+                }
+            });
+
+            function tryFallbackMusic() {
+                try {
+                    const audioCtx = new(window.AudioContext || window.webkitAudioContext)();
+                    const gainNode = audioCtx.createGain();
+                    gainNode.gain.value = 0.04;
+                    gainNode.connect(audioCtx.destination);
+
+                    function playGentleTone() {
+                        if (!isPlaying) return;
+                        const osc = audioCtx.createOscillator();
+                        const noteGain = audioCtx.createGain();
+                        osc.type = 'sine';
+                        const notes = [261.63, 293.66, 329.63, 349.23, 392.00, 349.23, 329.63, 293.66];
+                        osc.frequency.value = notes[Math.floor(Math.random() * notes.length)];
+                        noteGain.gain.setValueAtTime(0, audioCtx.currentTime);
+                        noteGain.gain.linearRampToValueAtTime(0.03, audioCtx.currentTime + 0.8);
+                        noteGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 3);
+                        osc.connect(noteGain);
+                        noteGain.connect(gainNode);
+                        osc.start(audioCtx.currentTime);
+                        osc.stop(audioCtx.currentTime + 3);
+                        if (isPlaying) setTimeout(playGentleTone, 2500 + Math.random() * 2000);
+                    }
+                    bgMusic.play = function() {
+                        isPlaying = true;
+                        playGentleTone();
+                        return Promise.resolve();
+                    };
+                    bgMusic.pause = function() { isPlaying = false; };
+                    musicLoaded = true;
+                } catch (err) {}
+            }
+
+            function toggleMusic() {
+                if (isPlaying) {
+                    bgMusic.pause();
+                    isPlaying = false;
+                    musicBtn.classList.remove('playing');
+                    noteIcon.textContent = '🎵';
+                    musicBtn.title = '点击播放背景音乐';
+                } else {
+                    const playPromise = bgMusic.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            isPlaying = true;
+                            musicBtn.classList.add('playing');
+                            noteIcon.textContent = '🎶';
+                            musicBtn.title = '点击暂停背景音乐';
+                        }).catch(() => {
+                            if (!musicLoaded) tryFallbackMusic();
+                            setTimeout(() => {
+                                bgMusic.play().then(() => {
+                                    isPlaying = true;
+                                    musicBtn.classList.add('playing');
+                                    noteIcon.textContent = '🎶';
+                                }).catch(() => {});
+                            }, 300);
+                        });
+                    }
+                }
+            }
+
+            musicBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                toggleMusic();
+            });
+
+            let autoPlayAttempted = false;
+            document.addEventListener('click', function autoPlayOnInteraction() {
+                if (!autoPlayAttempted && !isPlaying) {
+                    autoPlayAttempted = true;
+                    toggleMusic();
+                }
+            }, { once: false });
+
+            // ========== 动态生成成绩卡片 ==========
+            function buildScoreCards() {
+                const container = document.getElementById('scoreCards');
+                const prev = previous || { chinese: 0, math: 0, english: 0, rank: 999 };
+                const curr = latest;
+
+                const subjects = [
+                    { label: '📖 语文', key: 'chinese', current: curr.chinese, prev: prev.chinese },
+                    { label: '📐 数学', key: 'math', current: curr.math, prev: prev.math },
+                    { label: '🌍 英语', key: 'english', current: curr.english, prev: prev.english },
+                ];
+
+                const totalCurrent = curr.chinese + curr.math + curr.english;
+                const totalPrev = prev.chinese + prev.math + prev.english;
+                const rankChange = prev.rank - curr.rank; // 正数表示排名上升
+
+                let html = '';
+                subjects.forEach(sub => {
+                    const diff = sub.current - sub.prev;
+                    const changeClass = diff >= 0 ? 'up' : 'down';
+                    const arrow = diff >= 0 ? '↑' : '↓';
+                    html += `
+                    <div class="score-card">
+                        <div class="score-subject">${sub.label}</div>
+                        <div class="score-value" data-target="${sub.current}">0</div>
+                        <div class="score-change ${changeClass}">${arrow} ${Math.abs(diff)}分</div>
+                    </div>`;
+                });
+                // 总分排名卡片
+                const totalDiff = totalCurrent - totalPrev;
+                const totalChangeClass = totalDiff >= 0 ? 'up' : 'down';
+                const totalArrow = totalDiff >= 0 ? '↑' : '↓';
+                const rankArrow = rankChange > 0 ? '↑' : (rankChange < 0 ? '↓' : '→');
+                const rankChangeClass = rankChange > 0 ? 'up' : (rankChange < 0 ? 'down' : '');
+                html += `
+                <div class="score-card">
+                    <div class="score-subject">🏅 总分排名</div>
+                    <div class="score-value" data-target="${totalCurrent}" style="font-size:2.4em;">0</div>
+                    <div class="score-change ${totalChangeClass}">${totalArrow} ${Math.abs(totalDiff)}分</div>
+                    <div class="rank-badge">年级第 ${curr.rank} 名 <span class="score-change ${rankChangeClass}" style="font-size:0.8em;padding:1px 6px;">${rankArrow} ${Math.abs(rankChange)}</span></div>
+                </div>`;
+
+                container.innerHTML = html;
+            }
+
+            // ========== 数字滚动动画 ==========
+            function animateNumbers() {
+                const scoreValues = document.querySelectorAll('.score-value[data-target]');
+                scoreValues.forEach(el => {
+                    const target = parseInt(el.getAttribute('data-target'));
+                    const duration = 1800;
+                    const startTime = performance.now();
+
+                    function update(now) {
+                        const elapsed = now - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
+                        const current = Math.round(eased * target);
+                        el.textContent = current;
+                        if (progress < 1) {
+                            requestAnimationFrame(update);
+                        } else {
+                            el.textContent = target;
+                        }
+                    }
+                    requestAnimationFrame(update);
+                });
+            }
+
+            // ========== Chart.js 图表 ==========
+            function createChart() {
+                const ctx = document.getElementById('scoreChart').getContext('2d');
+                const labels = examData.map(d => d.name.replace(/初一|初二|初三/g, (m) => {
+                    const map = { '初一': '七', '初二': '八', '初三': '九' };
+                    return map[m] || m;
+                }).replace(/上/g, '上').replace(/下/g, '下'));
+
+                const gradientChinese = ctx.createLinearGradient(0, 0, 0, 360);
+                gradientChinese.addColorStop(0, 'rgba(108, 92, 231, 0.3)');
+                gradientChinese.addColorStop(1, 'rgba(108, 92, 231, 0.01)');
+                const gradientMath = ctx.createLinearGradient(0, 0, 0, 360);
+                gradientMath.addColorStop(0, 'rgba(253, 121, 168, 0.3)');
+                gradientMath.addColorStop(1, 'rgba(253, 121, 168, 0.01)');
+                const gradientEnglish = ctx.createLinearGradient(0, 0, 0, 360);
+                gradientEnglish.addColorStop(0, 'rgba(0, 184, 148, 0.3)');
+                gradientEnglish.addColorStop(1, 'rgba(0, 184, 148, 0.01)');
+
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: '语文',
+                            data: examData.map(d => d.chinese),
+                            borderColor: '#6c5ce7',
+                            backgroundColor: gradientChinese,
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 2.5,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#6c5ce7',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointHoverRadius: 8,
+                        }, {
+                            label: '数学',
+                            data: examData.map(d => d.math),
+                            borderColor: '#fd79a8',
+                            backgroundColor: gradientMath,
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 2.5,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#fd79a8',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointHoverRadius: 8,
+                        }, {
+                            label: '英语',
+                            data: examData.map(d => d.english),
+                            borderColor: '#00b894',
+                            backgroundColor: gradientEnglish,
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 2.5,
+                            pointRadius: 5,
+                            pointBackgroundColor: '#00b894',
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            pointHoverRadius: 8,
+                        }],
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        interaction: { mode: 'index', intersect: false },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { usePointStyle: true, pointStyleWidth: 10, padding: 24, font: { size: 13 } },
+                            },
+                            tooltip: {
+                                backgroundColor: 'rgba(255,255,255,0.96)',
+                                titleColor: '#2d3436',
+                                bodyColor: '#2d3436',
+                                borderColor: '#e8e4f0',
+                                borderWidth: 1,
+                                cornerRadius: 12,
+                                padding: 14,
+                                callbacks: { label: (ctx) => ` ${ctx.dataset.label}: ${ctx.raw} 分` },
+                            },
+                        },
+                        scales: {
+                            y: { min: 88, max: 120, ticks: { stepSize: 4, callback: (v) => v + '分' }, grid: { color: 'rgba(108,92,231,0.06)' } },
+                            x: { ticks: { maxRotation: 35 }, grid: { display: false } },
+                        },
+                        animation: { duration: 2000, easing: 'easeOutQuart' },
+                    },
+                });
+            }
+
+            // ========== 时间线（含排名）==========
+            function buildTimeline() {
+                const timeline = document.getElementById('timeline');
+                const reversed = [...examData].reverse();
+                reversed.forEach(exam => {
+                    const total = exam.chinese + exam.math + exam.english;
+                    const item = document.createElement('div');
+                    item.classList.add('timeline-item');
+                    item.innerHTML = `
+                    <div class="timeline-date">📅 ${exam.date} · ${exam.name}</div>
+                    <div class="timeline-scores">
+                      <span>📖 语文 ${exam.chinese}</span>
+                      <span>📐 数学 ${exam.math}</span>
+                      <span>🌍 英语 ${exam.english}</span>
+                    </div>
+                    <div class="timeline-total">总分：<strong>${total}</strong> 分</div>
+                    <div class="timeline-rank">🏅 年级排名：第 ${exam.rank} 名</div>
+                  `;
+                    timeline.appendChild(item);
+                });
+            }
+
+            // ========== 滚动显示动画 ==========
+            function setupReveal() {
+                const reveals = document.querySelectorAll('.reveal');
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+                reveals.forEach(el => observer.observe(el));
+            }
+
+            // ========== 头像上传 ==========
+            const avatarWrapper = document.getElementById('avatarWrapper');
+            const avatarImg = document.getElementById('avatarImg');
+            const avatarPlaceholder = document.getElementById('avatarPlaceholder');
+            const avatarInput = document.getElementById('avatarInput');
+            avatarWrapper.addEventListener('click', () => avatarInput.click());
+            avatarInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        avatarImg.src = ev.target.result;
+                        avatarImg.style.display = 'block';
+                        avatarPlaceholder.style.display = 'none';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // ========== 照片墙上传 ==========
+            const galleryItems = document.querySelectorAll('.gallery-item');
+            const galleryInput = document.getElementById('galleryInput');
+            let currentGalleryIndex = 0;
+            galleryItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    currentGalleryIndex = parseInt(item.getAttribute('data-index'));
+                    galleryInput.click();
+                });
+            });
+            galleryInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const targetItem = document.querySelector(`.gallery-item[data-index="${currentGalleryIndex}"]`);
+                        if (targetItem) {
+                            const img = targetItem.querySelector('img');
+                            const placeholder = targetItem.querySelector('.gallery-placeholder');
+                            img.src = ev.target.result;
+                            img.style.display = 'block';
+                            if (placeholder) placeholder.style.display = 'none';
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                    galleryInput.value = '';
+                }
+            });
+
+            // ========== 初始化 ==========
+            function init() {
+                buildScoreCards();   // 动态生成卡片
+                buildTimeline();     // 时间线
+                createChart();
+                setupReveal();
+                setTimeout(animateNumbers, 400);
+                setTimeout(() => {
+                    document.querySelectorAll('.reveal').forEach(el => {
+                        const rect = el.getBoundingClientRect();
+                        if (rect.top < window.innerHeight) el.classList.add('visible');
+                    });
+                }, 200);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', init);
+            } else {
+                init();
+            }
+
+            console.log('🌸 曾羽涵的成绩记录主页已更新 - 包含年级排名');
+            console.log('🎵 点击右下角音符按钮开启背景音乐');
+            console.log('🖼️ 点击头像和照片墙可上传图片');
+        })();
+    </script>
+</body>
+</html>
