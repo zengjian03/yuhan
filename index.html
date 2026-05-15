@@ -677,12 +677,17 @@
 
         <!-- 顶部英雄区 -->
         <section class="hero-section">
-            <div class="avatar-wrapper" title="点击更换照片" id="avatarWrapper">
-                <div class="avatar-ring"></div>
-                <div class="avatar-placeholder" id="avatarPlaceholder">👧</div>
-                <img class="avatar" id="avatarImg" src="https://raw.githubusercontent.com/zengjian03/yuhan/img/touxiang.jpg" alt="曾羽涵" style="display:none;"
-                onerror="this.style.display='none';document.getElementById('avatarPlaceholder').style.display='flex';">
-            </div>
+<div class="avatar-wrapper" title="点击更换照片" id="avatarWrapper">
+    <div class="avatar-ring"></div>
+    <!-- 占位符默认隐藏 -->
+    <div class="avatar-placeholder" id="avatarPlaceholder" style="display:none;">👧</div>
+    <!-- 头像图片默认显示 -->
+    <img class="avatar" id="avatarImg" 
+         src="https://raw.githubusercontent.com/zengjian03/yuhan/img/touxiang.jpg" 
+         alt="曾羽涵" 
+         style="display:block;"
+         onerror="this.style.display='none'; document.getElementById('avatarPlaceholder').style.display='flex';">
+</div>
             <h1 class="hero-name">曾羽涵</h1>
             <p class="hero-motto">✨ 学如逆水行舟，不进则退 ✨</p>
             <input type="file" id="avatarInput" accept="image/*" style="display:none;">
